@@ -16,3 +16,28 @@ import stairs from '../assets/ambient/static/stairs.png';
 export const addBackgrounds = (destination, loadFn) => {
   [bg01, bg01a, bg02, bg02a, bg03, bg03a, bg04, bg05, stairs].forEach((asset) => destination.push(loadFn(asset)))
 }
+
+const INFINITE_LAYERS = [1, 3, 5]
+const STATIC_COPIED_LAYERS = [0, 4, 6, 7]
+
+export const createAnimationsForBackgroundLayers = (gameState, animationSpeedSky) => {
+  // infinite layers
+  INFINITE_LAYERS.forEach((layerIndex, i) => {
+    gameState.layers[layerIndex].update = function () {
+      this.position.x += gameState.animation.background[i] * animationSpeedSky;
+    }
+    gameState.layers[layerIndex].render = function () {
+      if (this.position.x >= this.layer.width) this.position.x = 0;
+      if (this.position.x > 0) this.renderer.image(this.layer, this.position.x - this.layer.width, 0);
+      this.renderer.image(this.layer, this.position.x, 0);
+    }
+  })
+
+  // copied static layers
+  STATIC_COPIED_LAYERS.forEach((layerIndex) => {
+    gameState.layers[layerIndex].render = function () {
+      this.renderer.image(this.layer, 0, 0);
+      this.renderer.image(this.layer, this.layer.width, 0);
+    }
+  })
+}

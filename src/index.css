@@ -5,6 +5,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
 }
 
 code {
@@ -13,7 +14,6 @@ code {
 }
 
 .p5Canvas {
-  height: 1080px!important;
-  width: auto!important;
-  image-rendering:pixelated!important;
+  width: auto !important;
+  height: 720px !important;
 }

@@ -1,20 +1,10 @@
-class Renderable {
-  layer = null;
-
-  constructor (renderer, props = {}) {
-    this.renderer = renderer;
-    Object.keys(props).forEach((key) => {
-      this[key] = props[key];
-    });
-  }
-  render () {
-    throw new Error("#render should be implemented!");
-  }
-}
+import {Renderable} from './Renderable';
 
 export class Animation extends Renderable {
   update () {}
-  render () {}
+  render () {
+    this.renderer.image(this.layer, this.position.x, 0);
+  }
 
   play (...args) {
 

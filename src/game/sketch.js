@@ -1,14 +1,15 @@
 import * as p5 from 'p5';
 import _ from 'lodash';
 
-import { FRAMERATE, ANIMATION_SPEED_SKY, FIELD_SIZE, TILE_SIZE } from './constants';
+import { FRAMERATE, ANIMATION_SPEED_SKY, SCREEN_WIDTH, SCREEN_HEIGHT } from './constants';
 
 
 import { Animation } from './utils/Animation';
-
+import { Field } from './utils/Field';
 
 import {
-  addBackgrounds
+  addBackgrounds,
+  createAnimationsForBackgroundLayers
 } from './loadAssets';
 
 
@@ -23,10 +24,16 @@ export const create = ({
   p.preload = preload.bind(p);
 }, wrapper)
 
+
 const gameState = {
   layers: [],
   animation: {
-    layers: [1, 3, 6]
+    background: [1, 3, 6],
+    portals: {
+      green: {},
+      red: {},
+      placeholder: {}
+    }
   }
 }
 
@@ -36,35 +43,32 @@ export const preload = function () {
 }
 
 export const setup = function () {
-  this.createCanvas(FIELD_SIZE + TILE_SIZE * 2, FIELD_SIZE + TILE_SIZE * 2);
+  this.createCanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
   this.frameRate(FRAMERATE);
   this.noSmooth();
 
   _.assign(gameState.layers, gameState.layers.map((layer) => new Animation(this, {
     layer,
     position: {
-      x: 0,
+      x: SCREEN_WIDTH / 4,
       y: 0
-    },
-    render () {
-      if (this.position.x >= this.layer.width) this.position.x = 0;
-      if (this.position.x > 0) {
-        // draw tail of image
-        this.renderer.image(this.layer, this.position.x - this.layer.width, 0);
-      }
-      // draw head of image
-      this.renderer.image(this.layer, this.position.x, 0);
     }
   })));
 
-  [gameState.layers[1], gameState.layers[3], gameState.layers[5]].forEach((layer, i) => {
-    layer.update = function () {
-      this.position.x += gameState.animation.layers[i] * ANIMATION_SPEED_SKY;
-    }
-  });
+  createAnimationsForBackgroundLayers(gameState, ANIMATION_SPEED_SKY);
+
+  const f = new Field(this, {
+      // portal_green: game.animation.portal_green,
+      // portal_red: game.animation.portal_red,
+      // red_light: game.animation.red_light,
+      // green_light: game.animation.green_light,
+      // idle: game.animation.idle
+  })
+
+  gameState.field = f.create();
 
 }
 export const draw = function () {
-  this.background(12)
+  this.background(0)
   gameState.layers.map(l => l.play())
 }
