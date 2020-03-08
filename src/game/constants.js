@@ -11,8 +11,6 @@ export const SCREEN_WIDTH    = SCREEN_HEIGHT * 1.8;
 
 export const ONSCREEN_OFFSET = SCREEN_WIDTH / 4 + TILE_SIZE;
 
-export const IGNORED_TILES = [11, 21, 32, 43, 54, 65, 76, 87, 98, 110];
-
 export const PATHS = [
   [8, 26],
   [21, 82],
