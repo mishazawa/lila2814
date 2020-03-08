@@ -1,3 +1,5 @@
+export const DEBUG = false;
+
 export const ANIMATION_SPEED_SKY = 0.02;
 export const FRAMERATE           = 60;
 export const FIELD_OFFSET        = 32;
@@ -7,7 +9,7 @@ export const TILE_SIZE           = 32;
 export const SCREEN_HEIGHT   = FIELD_SIZE + TILE_SIZE * 2;
 export const SCREEN_WIDTH    = SCREEN_HEIGHT * 1.8;
 
-export const ONSCREEN_OFFSET = SCREEN_WIDTH / 4.5;
+export const ONSCREEN_OFFSET = SCREEN_WIDTH / 4 + TILE_SIZE;
 
 export const IGNORED_TILES = [11, 21, 32, 43, 54, 65, 76, 87, 98, 110];
 

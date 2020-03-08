@@ -6,6 +6,6 @@ export class Renderable {
     });
   }
   render () {
-    throw new Error("#render should be implemented!");
+    console.warn("#render should be implemented!");
   }
 }

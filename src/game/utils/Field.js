@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { Tile } from './Tile';
 import { Renderable } from './Renderable';
 import { Animation } from './Animation';
-import { FIELD_SIZE, TILE_SIZE, IGNORED_TILES, PATHS } from './../constants';
+import { FIELD_SIZE, TILE_SIZE, PATHS } from './../constants';
 
 export class Field extends Renderable {
   constructor (renderer, props) {
@@ -11,6 +11,7 @@ export class Field extends Renderable {
     this.tiles = [];
     this.rows = this.cols = FIELD_SIZE / TILE_SIZE;
     this.currentBlink = 0;
+    this.create()
   }
 
   tiles (index = null) {

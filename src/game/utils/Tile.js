@@ -1,16 +1,17 @@
 import { Renderable } from './Renderable';
-import { TILE_SIZE, FIELD_OFFSET } from './../constants';
+import { DEBUG, TILE_SIZE } from './../constants';
 
 export class Tile extends Renderable {
 
   render () {
+    if (!DEBUG) return;
     this.renderer.push();
-    // this.renderer.noStroke();
-    // this.renderer.fill(this.index % 2 ? this.renderer.color(200, 200, 200, 100) : this.renderer.color(100, 100, 100, 100));
-    // this.renderer.rect(this.x, this.y, TILE_SIZE, TILE_SIZE);
+    this.renderer.noStroke();
+    this.renderer.fill(this.index % 2 ? this.renderer.color(200, 200, 200, 100) : this.renderer.color(100, 100, 100, 100));
+    this.renderer.rect(this.x, this.y, TILE_SIZE, TILE_SIZE);
     this.renderer.fill(255);
-    // this.renderer.text(this.index + 1, this.x + 10, this.y + 20);
-    // this.portal && this.portal.render();
+    this.renderer.text(this.index + 1, this.x + 10, this.y + 20);
+    this.portal && this.portal.render();
     this.renderer.pop();
   }
 
