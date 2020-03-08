@@ -1,4 +1,4 @@
-export const DEBUG = false;
+export const DEBUG = true;
 
 export const ANIMATION_SPEED_SKY = 0.02;
 export const FRAMERATE           = 60;
@@ -37,8 +37,8 @@ export const PATHS = [
 ]
 
 export const PLAYER_STATE = {
-  idle: 0,
-  moving: 1,
+  idle: 'idle',
+  moving: 'moving',
   pretp: 2,
   tp: 3,
   posttp: 4,
