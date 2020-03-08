@@ -8,7 +8,8 @@ import {
   SCREEN_HEIGHT,
   ONSCREEN_OFFSET,
   FIELD_OFFSET,
-  TILE_SIZE
+  TILE_SIZE,
+  DEBUG,
 } from './constants';
 
 import { Animation } from './utils/Animation';
@@ -36,6 +37,7 @@ export const create = ({
 
 
 const gameState = {
+  counter: 0,
   layers: [],
   players: [],
   animation: {
@@ -73,14 +75,26 @@ export const setup = function () {
 
   createAnimationsForBackgroundLayers(gameState, ANIMATION_SPEED_SKY);
 
+  if (DEBUG) {
+    // create players test
+    _.set(gameState, 'players', Object.keys(gameState.characters).map((username, id) => new Character(this, {
+      gameState,
+      id,
+      username,
+      config: gameState.characters[username]
+    })))
 
-  // create players test
-  _.set(gameState, 'players', Object.keys(gameState.characters).map((username, id) => new Character(this, {
-    gameState,
-    id,
-    username,
-    config: gameState.characters[username]
-  })))
+    const button = this.createButton('roll');
+    button.mousePressed(() => {
+      const rollData = {
+        roll: Math.floor(Math.random() * 6) + 1,
+        player: gameState.counter % gameState.players.length
+      }
+
+      gameState.players[rollData.player].move(rollData.roll);
+      gameState.counter += 1;
+    });
+  }
 
 }
 
