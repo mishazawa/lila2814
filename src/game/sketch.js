@@ -1,7 +1,7 @@
 import * as p5 from 'p5';
 import _ from 'lodash';
 
-import { FRAMERATE, ANIMATION_SPEED_SKY, SCREEN_WIDTH, SCREEN_HEIGHT, ONSCREEN_OFFSET, FIELD_OFFSET } from './constants';
+import { FRAMERATE, ANIMATION_SPEED_SKY, SCREEN_WIDTH, SCREEN_HEIGHT, ONSCREEN_OFFSET, FIELD_OFFSET, TILE_SIZE } from './constants';
 
 
 import { Animation } from './utils/Animation';
@@ -11,6 +11,7 @@ import {
   addBackgrounds,
   createAnimationsForBackgroundLayers,
   addEnvironmentObjects,
+  addCharacters,
 } from './loadAssets';
 
 
@@ -37,9 +38,13 @@ const gameState = {
 export const preload = function () {
   addBackgrounds(gameState.layers, this.loadImage)
 
-  addEnvironmentObjects({}, this.loadImage).then(([data]) => {
-    _.set(gameState, 'field', new Field(this, data));
-  });
+  Promise.all([
+    addCharacters({}, this.loadImage),
+    addEnvironmentObjects({}, this.loadImage)
+  ]).then(([characters, field]) => {
+    _.set(gameState, 'characters', characters.pop());
+    _.set(gameState, 'field', new Field(this, field.pop()));
+  })
 }
 
 export const setup = function () {
@@ -50,7 +55,7 @@ export const setup = function () {
   _.set(gameState, 'layers', gameState.layers.map((layer) => new Animation(this, {
     layer,
     position: {
-      x: SCREEN_WIDTH / 4,
+      x: ONSCREEN_OFFSET - TILE_SIZE,
       y: 0
     }
   })));

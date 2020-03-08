@@ -29,11 +29,31 @@ import red_mask        from '../assets/ambient/light/red/mask.png';
 
 import portal_static   from '../assets/ambient/static/portal.png';
 
+// characters
+
+
+import pink_idle   from '../assets/characters/pink/idle.png'
+import pink_walk   from '../assets/characters/pink/walk.png'
+import pink_config from '../assets/characters/pink/config.json'
+
+import yell_idle   from '../assets/characters/yellow/idle.png';
+import yell_walk   from '../assets/characters/yellow/walk.png';
+import yell_config from '../assets/characters/yellow/config.json'
+
+import blue_idle   from '../assets/characters/blue/idle.png'
+import blue_walk   from '../assets/characters/blue/walk.png'
+import blue_config from '../assets/characters/blue/config.json'
+
+import red_idle    from '../assets/characters/red/idle.png';
+import red_walk    from '../assets/characters/red/walk.png';
+import red_config  from '../assets/characters/red/config.json'
+
+
 const loadSprite = (loadImage, destination) => (file, name) => new Promise(res => loadImage(file, (img) => {
   if (img.width === TILE_SIZE) {
-    destination[name] = img;
+    _.set(destination, name, img);
   } else {
-    destination[name] = _.times(img.width / TILE_SIZE, (i) => img.get(TILE_SIZE * i, 0, TILE_SIZE, TILE_SIZE));
+    _.set(destination, name, _.times(img.width / TILE_SIZE, (i) => img.get(TILE_SIZE * i, 0, TILE_SIZE, TILE_SIZE)));
   }
   return res(destination);
 }));
@@ -50,8 +70,6 @@ export const addEnvironmentObjects = (destination, loadFn) => {
     load(green_light,   'green_light'),
     load(red_light,     'red_light'),
 
-
-
     load(green_animation, 'portal_green'),
     load(green_mask,      'green_mask_anim'),
     load(red_animation,   'portal_red'),
@@ -60,7 +78,23 @@ export const addEnvironmentObjects = (destination, loadFn) => {
 }
 
 export const addCharacters = (destination, loadFn) => {
+  const load = loadSprite(loadFn, destination);
 
+  _.set(destination, 'red.config', red_config);
+  _.set(destination, 'pink.config', pink_config);
+  _.set(destination, 'blue.config', blue_config);
+  _.set(destination, 'yellow.config', yell_config);
+
+  return Promise.all([
+    load(pink_idle, 'pink.idle'),
+    load(pink_walk, 'pink.walk'),
+    load(yell_idle, 'yellow.idle'),
+    load(yell_walk, 'yellow.walk'),
+    load(red_idle,  'red.idle'),
+    load(red_walk,  'red.walk'),
+    load(blue_idle, 'blue.idle'),
+    load(blue_walk, 'blue.walk')
+  ]);
 }
 
 const INFINITE_LAYERS = [1, 3, 5]

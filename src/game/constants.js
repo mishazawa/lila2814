@@ -9,7 +9,7 @@ export const TILE_SIZE           = 32;
 export const SCREEN_HEIGHT   = FIELD_SIZE + TILE_SIZE * 2;
 export const SCREEN_WIDTH    = SCREEN_HEIGHT * 1.8;
 
-export const ONSCREEN_OFFSET = SCREEN_WIDTH / 4 + TILE_SIZE;
+export const ONSCREEN_OFFSET = Math.round(SCREEN_WIDTH / 4);
 
 export const PATHS = [
   [8, 26],
@@ -35,3 +35,13 @@ export const PATHS = [
   [46, 5],
   [44, 22],
 ]
+
+export const PLAYER_STATE = {
+  idle: 0,
+  moving: 1,
+  pretp: 2,
+  tp: 3,
+  posttp: 4,
+  stop: 5,
+  step: 6
+}
