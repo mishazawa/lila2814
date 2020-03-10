@@ -87,6 +87,7 @@ export const setup = function () {
     const button = this.createButton('roll');
     button.mousePressed(() => {
       const rollData = {
+        // roll: 1,
         roll: Math.floor(Math.random() * 6) + 1,
         player: gameState.counter % gameState.players.length
       }

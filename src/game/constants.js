@@ -39,9 +39,9 @@ export const PATHS = [
 export const PLAYER_STATE = {
   idle: 'idle',
   walk: 'walk',
-  pretp: 2,
+  stop: 'stop',
+  pre_tp: 'pre_tp',
+  post_tp: 'post_tp',
   tp: 3,
-  posttp: 4,
-  stop: 5,
   step: 6
 }

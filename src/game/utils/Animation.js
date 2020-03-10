@@ -12,3 +12,20 @@ export class Animation extends Renderable {
     this.render(...args);
   }
 }
+
+
+export class SequenceAnimation {
+  constructor(val, renderFn = () => {}, nextFn = () => {}) {
+    this.length = val.length;
+    this.current = 0;
+
+    this.next = () => nextFn(val, renderFn);
+    this.renderFn = renderFn;
+  }
+
+  render () {
+    this.renderFn(this.current);
+    this.current += 1;
+    return this.current === this.length;
+  }
+}
