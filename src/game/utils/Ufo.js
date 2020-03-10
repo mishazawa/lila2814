@@ -37,8 +37,8 @@ export class Ufo extends Renderable {
   }
 
   idleRender = () => {
-    if (this.renderer.frameCount % 50 === 0) {
-      this.offset = this.renderer.random(1, 5);
+    if (this.renderer.frameCount % this.config.fps.idle === 0) {
+      this.offset = this.renderer.noise(this.renderer.frameCount);
     }
     this.renderer.translate(-TILE_SIZE + this.offset, -TILE_SIZE + this.offset);
     this.renderer.image(this.skin[this.currentFrame], 0, 0);

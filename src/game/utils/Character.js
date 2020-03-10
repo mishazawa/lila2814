@@ -8,7 +8,7 @@ import { SequenceAnimation } from './Animation';
 export class Character extends Renderable {
   constructor (renderer, props) {
     super(renderer, props);
-    this.spot = 98;
+    this.spot = 0;
 
     this.state = PLAYER_STATE.idle;
     this.setSpotPosition()
