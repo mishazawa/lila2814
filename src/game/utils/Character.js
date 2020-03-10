@@ -8,9 +8,7 @@ import { SequenceAnimation } from './Animation';
 export class Character extends Renderable {
   constructor (renderer, props) {
     super(renderer, props);
-    this.spot = 0;
-    this.rest = 0;
-
+    this.spot = 98;
 
     this.state = PLAYER_STATE.idle;
     this.setSpotPosition()
@@ -47,7 +45,13 @@ export class Character extends Renderable {
   move = (rollNumber) => {
     if (rollNumber <= 0) return this.setState(PLAYER_STATE.stop);
     this.rollNumber = rollNumber;
-
+    if (this.checkLastSpot()) {
+      if (!this.gameState.gameOver) {
+        this.gameState.gameOver = true;
+        this.setState(PLAYER_STATE.tp);
+      }
+      return
+    }
     this.succSpot();
     this.setState(PLAYER_STATE.walk);
 
@@ -113,8 +117,9 @@ export class Character extends Renderable {
 
   succSpot = () => {
     this.spot += 1;
-    this.rest -= 1;
   }
+
+  checkLastSpot = () => this.spot === this.gameState.field.tiles.length - 1
 
   teleport (animationMask) {
     this.setState(PLAYER_STATE.pre_tp);

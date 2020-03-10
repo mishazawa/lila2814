@@ -15,12 +15,14 @@ import {
 import { Animation } from './utils/Animation';
 import { Field }     from './utils/Field';
 import { Character } from './utils/Character';
+import { Ufo }       from './utils/Ufo';
 
 import {
   addBackgrounds,
   createAnimationsForBackgroundLayers,
   addEnvironmentObjects,
   addCharacters,
+  addUfo,
 } from './loadAssets';
 
 
@@ -44,7 +46,9 @@ const gameState = {
     background: [1, 3, 6],
   },
   characters: {},
-  field: null
+  ufo: null,
+  field: null,
+  gameOver: false,
 }
 
 
@@ -53,10 +57,12 @@ export const preload = function () {
 
   Promise.all([
     addCharacters({}, this.loadImage),
-    addEnvironmentObjects({}, this.loadImage)
-  ]).then(([characters, field]) => {
+    addEnvironmentObjects({}, this.loadImage),
+    addUfo({}, this.loadImage)
+  ]).then(([characters, field, ufo]) => {
     _.set(gameState, 'characters', characters.pop());
     _.set(gameState, 'field', new Field(this, field.pop()));
+  _.set(gameState, 'ufo', new Ufo(this, {...ufo, gameState}))
   })
 }
 
@@ -72,6 +78,7 @@ export const setup = function () {
       y: 0
     }
   })));
+
 
   createAnimationsForBackgroundLayers(gameState, ANIMATION_SPEED_SKY);
 
@@ -111,5 +118,11 @@ export const draw = function () {
 
   gameState.players.forEach(p => p.render())
 
+  gameState.ufo.render();
+
   this.pop();
+
+  // if (gameState.gameOver) {
+  //   this.noLoop();
+  // }
 }

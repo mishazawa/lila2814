@@ -11,6 +11,9 @@ export const SCREEN_WIDTH    = SCREEN_HEIGHT * 1.8;
 
 export const ONSCREEN_OFFSET = Math.round(SCREEN_WIDTH / 4);
 
+export const UFO_TILE_WIDTH  = 96;
+export const UFO_TILE_HEIGHT = 64;
+
 export const PATHS = [
   [8, 26],
   [21, 82],
@@ -42,6 +45,11 @@ export const PLAYER_STATE = {
   stop: 'stop',
   pre_tp: 'pre_tp',
   post_tp: 'post_tp',
-  tp: 3,
-  step: 6
+  tp: 'tp'
+}
+
+export const UFO_STATE = {
+  no_render: 'no_render',
+  idle: 'idle',
+  finish: 'finish',
 }
