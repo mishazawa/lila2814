@@ -1,4 +1,4 @@
-export const DEBUG = true;
+export const DEBUG = false;
 
 export const ANIMATION_SPEED_SKY = 0.02;
 export const FRAMERATE           = 60;
@@ -40,16 +40,28 @@ export const PATHS = [
 ]
 
 export const PLAYER_STATE = {
-  idle: 'idle',
-  walk: 'walk',
-  stop: 'stop',
-  pre_tp: 'pre_tp',
+  idle:    'idle',
+  walk:    'walk',
+  stop:    'stop',
+  pre_tp:  'pre_tp',
   post_tp: 'post_tp',
-  tp: 'tp'
+  tp:      'tp'
 }
 
 export const UFO_STATE = {
   no_render: 'no_render',
-  idle: 'idle',
-  finish: 'finish',
+  idle:      'idle',
+  finish:    'finish',
+}
+
+export const GAME_STATE = {
+  waiting:        'waiting',
+  rolling:        'rolling',
+  moving:         'moving',
+  teleporting:    'teleporting',
+  error:          'error',
+  searchingGame:  'searchingGame',
+  waitingForRoll: 'waitingForRoll',
+  gameOver:       'gameOver',
+  moveEnd:        'moveEnd',
 }

@@ -10,6 +10,7 @@ import {
   FIELD_OFFSET,
   TILE_SIZE,
   DEBUG,
+  GAME_STATE,
 } from './constants';
 
 import { Animation } from './utils/Animation';
@@ -25,6 +26,10 @@ import {
   addUfo,
 } from './loadAssets';
 
+import {
+  createGame,
+  getPlayersByRef,
+} from '../database/common';
 
 export const create = ({
   setup,
@@ -39,6 +44,7 @@ export const create = ({
 
 
 const gameState = {
+  status: GAME_STATE.waiting,
   counter: 0,
   layers: [],
   players: [],
@@ -51,19 +57,42 @@ const gameState = {
   gameOver: false,
 }
 
+let ref = null;
 
-export const preload = function () {
+const onPlayers = (rend) => ({docs}) => {
+  if (!gameState.players.length) {
+    // initial
+    return _.set(gameState, 'players', docs.map((pl, index) => {
+      const player = pl.data();
+      return new Character(rend, {
+        gameState,
+        id: player.id,
+        spot: player.spot,
+        username: player.username,
+        config: gameState.characters[player.username]
+      })
+    }));
+  }
+
+
+}
+
+export const preload = async function () {
   addBackgrounds(gameState.layers, this.loadImage)
-
-  Promise.all([
+  const [characters, field, ufo] = await Promise.all([
     addCharacters({}, this.loadImage),
     addEnvironmentObjects({}, this.loadImage),
-    addUfo({}, this.loadImage)
-  ]).then(([characters, field, ufo]) => {
-    _.set(gameState, 'characters', characters.pop());
-    _.set(gameState, 'field', new Field(this, field.pop()));
+    addUfo({}, this.loadImage),
+  ]);
+
+  _.set(gameState, 'characters', characters.pop());
+  _.set(gameState, 'field', new Field(this, field.pop()));
   _.set(gameState, 'ufo', new Ufo(this, {...ufo, gameState}))
-  })
+
+  ref = await createGame(gameState)
+  const playersRef = getPlayersByRef(ref.document);
+
+  playersRef.onSnapshot(onPlayers(this))
 }
 
 export const setup = function () {
@@ -83,15 +112,9 @@ export const setup = function () {
   createAnimationsForBackgroundLayers(gameState, ANIMATION_SPEED_SKY);
 
   if (DEBUG) {
-    // create players test
-    _.set(gameState, 'players', Object.keys(gameState.characters).map((username, id) => new Character(this, {
-      gameState,
-      id,
-      username,
-      config: gameState.characters[username]
-    })))
-
     const button = this.createButton('roll');
+    const button2 = this.createButton('create user');
+
     button.mousePressed(() => {
       const rollData = {
         // roll: 1,
@@ -116,7 +139,12 @@ export const draw = function () {
 
   gameState.field.render();
 
-  gameState.players.forEach(p => p.render())
+  if (gameState.status !== GAME_STATE.waiting) {
+    gameState.players.forEach(p => p.render())
+  } else {
+    // render logo and qr
+  }
+
 
   gameState.ufo.render();
 

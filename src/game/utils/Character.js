@@ -15,7 +15,6 @@ export class Character extends Renderable {
     this.velocity = renderer.createVector(1, 0)
 
 
-    this.offset = 0;
     this.currentFrame = 0;
     this.frameCount = 0;
 
