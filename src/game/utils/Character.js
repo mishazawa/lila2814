@@ -54,7 +54,7 @@ export class Character extends Renderable {
     this.velocity = this.assingVelocity(
       this.nextSpot,
       this.position,
-      this.gameState.characters[this.username].config.fps.walk
+      this.gameState.characters[this.skin_id].config.fps.walk
     );
   }
 
@@ -73,12 +73,12 @@ export class Character extends Renderable {
   }
 
   renderTile = () => {
-    const skin = this.gameState.characters[this.username];
+    const skin = this.gameState.characters[this.skin_id];
     this.renderer.image(skin[this.state][this.currentFrame % skin[this.state].length], 0, 0)
   }
 
   frameLimiter = () => {
-    const skin = this.gameState.characters[this.username];
+    const skin = this.gameState.characters[this.skin_id];
 
     if (this.renderer.frameCount % skin.config.fps[this.state] === 0) {
       this.currentFrame++;

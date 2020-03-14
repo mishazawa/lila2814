@@ -4,11 +4,14 @@ import 'firebase/functions';
 
 import { firebaseConfig } from './config';
 
+export let app: Firebase;
+
 export const init = () => {
   if (!firebase.apps.length) {
-    return Promise.resolve(new Firebase(firebase.initializeApp(firebaseConfig)))
+    app = new Firebase(firebase.initializeApp(firebaseConfig))
+  } else {
+    app = new Firebase(firebase.apps[0]);
   }
-  return Promise.resolve(new Firebase(firebase.apps[0]));
 }
 
 interface Firebase {

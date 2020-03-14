@@ -1,0 +1,101 @@
+[debug] [2020-03-14T19:02:03.165Z] ----------------------------------------------------------------------
+[debug] [2020-03-14T19:02:03.167Z] Command:       /home/mishazawa/.nvm/versions/node/v13.10.1/bin/node /home/mishazawa/.nvm/versions/node/v13.10.1/bin/firebase functions:shell
+[debug] [2020-03-14T19:02:03.167Z] CLI Version:   7.15.0
+[debug] [2020-03-14T19:02:03.167Z] Platform:      linux
+[debug] [2020-03-14T19:02:03.167Z] Node Version:  v13.10.1
+[debug] [2020-03-14T19:02:03.168Z] Time:          Sat Mar 14 2020 21:02:03 GMT+0200 (東ヨーロッパ標準時)
+[debug] [2020-03-14T19:02:03.168Z] ----------------------------------------------------------------------
+[debug] [2020-03-14T19:02:03.168Z] 
+[debug] [2020-03-14T19:02:03.173Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2020-03-14T19:02:03.173Z] > authorizing via signed-in user
+[debug] [2020-03-14T19:02:03.173Z] [iam] checking project lila2814-3d170 for permissions ["firebase.projects.get"]
+[debug] [2020-03-14T19:02:03.175Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
+[debug] [2020-03-14T19:02:03.175Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
+ <request body omitted>
+[debug] [2020-03-14T19:02:03.381Z] <<< HTTP RESPONSE 200
+[debug] [2020-03-14T19:02:03.396Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/lila2814-3d170:testIamPermissions  
+
+[debug] [2020-03-14T19:02:04.402Z] <<< HTTP RESPONSE 200
+[warn] ⚠  Your requested "node" version "8" doesn't match your global version "13"
+[info] ✔  functions: functions emulator started at http://localhost:5000
+[debug] [2020-03-14T19:02:04.470Z] [functions] Watching "/home/mishazawa/ドキュメント/lila2814/functions" for Cloud Functions...
+[debug] [2020-03-14T19:02:04.518Z] DEBUG: [worker-pool] addWorker(~diagnostic~)
+[debug] [2020-03-14T19:02:04.519Z] DEBUG: [worker-pool] Adding worker with key ~diagnostic~, total=1
+[debug] [2020-03-14T19:02:04.520Z] DEBUG: [worker-pool] submitWork(triggerId=)
+[debug] [2020-03-14T19:02:04.522Z] DEBUG: [worker-~diagnostic~-850a5146-5cb9-428d-9195-90fc83e4b970]: Assigning socketPath: /tmp/fire_emu_23329.sock
+[debug] [2020-03-14T19:02:04.523Z] DEBUG: [worker-~diagnostic~-850a5146-5cb9-428d-9195-90fc83e4b970]: BUSY
+[debug] [2020-03-14T19:02:04.759Z] DEBUG: [runtime-status] [23329] Functions runtime initialized. {"cwd":"/home/mishazawa/ドキュメント/lila2814/functions","node_version":"13.10.1"}
+[debug] [2020-03-14T19:02:04.761Z] DEBUG: [runtime-status] [23329] Disabled runtime features: {"functions_config_helper":true,"network_filtering":true,"timeout":true,"memory_limiting":true,"admin_stubs":true,"pubsub_emulator":true}
+[debug] [2020-03-14T19:02:04.763Z] DEBUG: [runtime-status] [23329] Resolved module firebase-admin {"declared":true,"installed":true,"version":"8.10.0","resolution":"/home/mishazawa/ドキュメント/lila2814/functions/node_modules/firebase-admin/lib/index.js"}
+[debug] [2020-03-14T19:02:04.764Z] DEBUG: [runtime-status] [23329] Resolved module firebase-functions {"declared":true,"installed":true,"version":"3.3.0","resolution":"/home/mishazawa/ドキュメント/lila2814/functions/node_modules/firebase-functions/lib/index.js"}
+[warn] ⚠  functions: Your GOOGLE_APPLICATION_CREDENTIALS environment variable points to /home/mishazawa/ドキュメント/lila2814/functions/serviceAccount.json. Non-emulated services will access production using these credentials. Be careful!
+[debug] [2020-03-14T19:02:04.766Z] DEBUG: [runtime-status] [23329] Resolved module firebase-functions {"declared":true,"installed":true,"version":"3.3.0","resolution":"/home/mishazawa/ドキュメント/lila2814/functions/node_modules/firebase-functions/lib/index.js"}
+[debug] [2020-03-14T19:02:05.114Z] [functions[createGame]] http function initialized (http://localhost:5000/lila2814-3d170/us-central1/createGame).
+[debug] [2020-03-14T19:02:05.114Z] [functions[getGame]] http function initialized (http://localhost:5000/lila2814-3d170/us-central1/getGame).
+[debug] [2020-03-14T19:02:05.114Z] [functions[updateGame]] http function initialized (http://localhost:5000/lila2814-3d170/us-central1/updateGame).
+[debug] [2020-03-14T19:02:05.115Z] [functions[endGame]] http function initialized (http://localhost:5000/lila2814-3d170/us-central1/endGame).
+[debug] [2020-03-14T19:02:05.115Z] [functions[createPlayer]] http function initialized (http://localhost:5000/lila2814-3d170/us-central1/createPlayer).
+[debug] [2020-03-14T19:02:05.115Z] [functions[getPlayer]] http function initialized (http://localhost:5000/lila2814-3d170/us-central1/getPlayer).
+[debug] [2020-03-14T19:02:05.115Z] [functions[updatePlayer]] http function initialized (http://localhost:5000/lila2814-3d170/us-central1/updatePlayer).
+[debug] [2020-03-14T19:02:05.115Z] [functions[roll]] http function initialized (http://localhost:5000/lila2814-3d170/us-central1/roll).
+[info] i  functions: Loaded functions: createGame, getGame, updateGame, endGame, createPlayer, getPlayer, updatePlayer, roll
+[debug] [2020-03-14T19:02:05.126Z] DEBUG: [worker-~diagnostic~-850a5146-5cb9-428d-9195-90fc83e4b970]: IDLE
+[debug] [2020-03-14T19:02:42.078Z] [work-queue] {"queueLength":1,"workRunningCount":0}
+[debug] [2020-03-14T19:02:42.086Z] [work-queue] {"queueLength":0,"workRunningCount":1}
+[debug] [2020-03-14T19:02:42.087Z] Accepted request POST /lila2814-3d170/us-central1/createPlayer --> createPlayer
+[debug] [2020-03-14T19:02:42.102Z] DEBUG: [worker-pool] addWorker(createPlayer)
+[debug] [2020-03-14T19:02:42.103Z] DEBUG: [worker-pool] Adding worker with key createPlayer, total=1
+[debug] [2020-03-14T19:02:42.103Z] DEBUG: [worker-pool] submitWork(triggerId=createPlayer)
+[debug] [2020-03-14T19:02:42.104Z] DEBUG: [worker-createPlayer-1ca38625-abbb-4bc6-9239-9153e708f4d5]: Assigning socketPath: /tmp/fire_emu_23372.sock
+[debug] [2020-03-14T19:02:42.104Z] DEBUG: [worker-createPlayer-1ca38625-abbb-4bc6-9239-9153e708f4d5]: BUSY
+[debug] [2020-03-14T19:02:42.355Z] DEBUG: [runtime-status] [23372] Functions runtime initialized. {"cwd":"/home/mishazawa/ドキュメント/lila2814/functions","node_version":"13.10.1"}
+[debug] [2020-03-14T19:02:42.356Z] DEBUG: [runtime-status] [23372] Disabled runtime features: {"functions_config_helper":true,"network_filtering":true,"timeout":true,"memory_limiting":true,"admin_stubs":true,"pubsub_emulator":true}
+[debug] [2020-03-14T19:02:42.362Z] DEBUG: [runtime-status] [23372] Resolved module firebase-admin {"declared":true,"installed":true,"version":"8.10.0","resolution":"/home/mishazawa/ドキュメント/lila2814/functions/node_modules/firebase-admin/lib/index.js"}
+[debug] [2020-03-14T19:02:42.365Z] DEBUG: [runtime-status] [23372] Resolved module firebase-functions {"declared":true,"installed":true,"version":"3.3.0","resolution":"/home/mishazawa/ドキュメント/lila2814/functions/node_modules/firebase-functions/lib/index.js"}
+[warn] ⚠  functions: Your GOOGLE_APPLICATION_CREDENTIALS environment variable points to /home/mishazawa/ドキュメント/lila2814/functions/serviceAccount.json. Non-emulated services will access production using these credentials. Be careful!
+[debug] [2020-03-14T19:02:42.367Z] DEBUG: [runtime-status] [23372] Resolved module firebase-functions {"declared":true,"installed":true,"version":"3.3.0","resolution":"/home/mishazawa/ドキュメント/lila2814/functions/node_modules/firebase-functions/lib/index.js"}
+[debug] [2020-03-14T19:02:42.704Z] DEBUG: [runtime-status] [23372] Trigger "createPlayer" has been found, beginning invocation!
+[debug] [2020-03-14T19:02:42.704Z] [functions] Beginning execution of "createPlayer"
+[debug] [2020-03-14T19:02:42.704Z] DEBUG: [runtime-status] [23372] triggerDefinition {"httpsTrigger":{},"labels":{"deployment-callable":"true"},"name":"createPlayer","entryPoint":"createPlayer"}
+[debug] [2020-03-14T19:02:42.705Z] DEBUG: [runtime-status] [23372] Running createPlayer in mode HTTPS
+[debug] [2020-03-14T19:02:42.709Z] DEBUG: [runtime-status] [23372] Attempting to listen to socketPath: /tmp/fire_emu_23372.sock
+[debug] [2020-03-14T19:02:42.713Z] DEBUG: [functions] Runtime ready! Sending request!
+[debug] [2020-03-14T19:02:42.730Z] DEBUG: [runtime-status] [23372] Ephemeral server handling POST request
+[debug] [2020-03-14T19:02:42.735Z] DEBUG: [runtime-status] [23372] Ephemeral server survived.
+[debug] [2020-03-14T19:02:44.249Z] [functions] Finished "createPlayer" in ~1s
+[debug] [2020-03-14T19:02:44.249Z] DEBUG: [worker-createPlayer-1ca38625-abbb-4bc6-9239-9153e708f4d5]: IDLE
+[debug] [2020-03-14T19:02:44.249Z] [work-queue] {"queueLength":0,"workRunningCount":0}
+[debug] [2020-03-14T19:26:27.582Z] [work-queue] {"queueLength":1,"workRunningCount":0}
+[debug] [2020-03-14T19:26:27.583Z] [work-queue] {"queueLength":0,"workRunningCount":1}
+[debug] [2020-03-14T19:26:27.583Z] Accepted request POST /lila2814-3d170/us-central1/createPlayer --> createPlayer
+[debug] [2020-03-14T19:26:27.583Z] DEBUG: [worker-pool] submitWork(triggerId=createPlayer)
+[debug] [2020-03-14T19:26:27.583Z] DEBUG: [worker-createPlayer-1ca38625-abbb-4bc6-9239-9153e708f4d5]: Assigning socketPath: /tmp/fire_emu_23372.sock
+[debug] [2020-03-14T19:26:27.584Z] DEBUG: [worker-createPlayer-1ca38625-abbb-4bc6-9239-9153e708f4d5]: BUSY
+[debug] [2020-03-14T19:26:27.584Z] DEBUG: [runtime-status] [23372] Trigger "createPlayer" has been found, beginning invocation!
+[debug] [2020-03-14T19:26:27.585Z] [functions] Beginning execution of "createPlayer"
+[debug] [2020-03-14T19:26:27.585Z] DEBUG: [runtime-status] [23372] triggerDefinition {"httpsTrigger":{},"labels":{"deployment-callable":"true"},"name":"createPlayer","entryPoint":"createPlayer"}
+[debug] [2020-03-14T19:26:27.585Z] DEBUG: [runtime-status] [23372] Running createPlayer in mode HTTPS
+[debug] [2020-03-14T19:26:27.585Z] DEBUG: [runtime-status] [23372] Attempting to listen to socketPath: /tmp/fire_emu_23372.sock
+[debug] [2020-03-14T19:26:27.590Z] DEBUG: [functions] Runtime ready! Sending request!
+[debug] [2020-03-14T19:26:27.594Z] DEBUG: [runtime-status] [23372] Ephemeral server handling POST request
+[debug] [2020-03-14T19:26:27.594Z] DEBUG: [runtime-status] [23372] Ephemeral server survived.
+[debug] [2020-03-14T19:26:28.854Z] [functions] Finished "createPlayer" in ~1s
+[debug] [2020-03-14T19:26:28.854Z] DEBUG: [worker-createPlayer-1ca38625-abbb-4bc6-9239-9153e708f4d5]: IDLE
+[debug] [2020-03-14T19:26:28.854Z] [work-queue] {"queueLength":0,"workRunningCount":0}
+[debug] [2020-03-14T19:46:48.898Z] [work-queue] {"queueLength":1,"workRunningCount":0}
+[debug] [2020-03-14T19:46:48.898Z] [work-queue] {"queueLength":0,"workRunningCount":1}
+[debug] [2020-03-14T19:46:48.898Z] Accepted request POST /lila2814-3d170/us-central1/createPlayer --> createPlayer
+[debug] [2020-03-14T19:46:48.899Z] DEBUG: [worker-pool] submitWork(triggerId=createPlayer)
+[debug] [2020-03-14T19:46:48.899Z] DEBUG: [worker-createPlayer-1ca38625-abbb-4bc6-9239-9153e708f4d5]: Assigning socketPath: /tmp/fire_emu_23372.sock
+[debug] [2020-03-14T19:46:48.899Z] DEBUG: [worker-createPlayer-1ca38625-abbb-4bc6-9239-9153e708f4d5]: BUSY
+[debug] [2020-03-14T19:46:48.901Z] DEBUG: [runtime-status] [23372] Trigger "createPlayer" has been found, beginning invocation!
+[debug] [2020-03-14T19:46:48.901Z] [functions] Beginning execution of "createPlayer"
+[debug] [2020-03-14T19:46:48.901Z] DEBUG: [runtime-status] [23372] triggerDefinition {"httpsTrigger":{},"labels":{"deployment-callable":"true"},"name":"createPlayer","entryPoint":"createPlayer"}
+[debug] [2020-03-14T19:46:48.901Z] DEBUG: [runtime-status] [23372] Running createPlayer in mode HTTPS
+[debug] [2020-03-14T19:46:48.901Z] DEBUG: [runtime-status] [23372] Attempting to listen to socketPath: /tmp/fire_emu_23372.sock
+[debug] [2020-03-14T19:46:48.909Z] DEBUG: [functions] Runtime ready! Sending request!
+[debug] [2020-03-14T19:46:48.912Z] DEBUG: [runtime-status] [23372] Ephemeral server handling POST request
+[debug] [2020-03-14T19:46:48.912Z] DEBUG: [runtime-status] [23372] Ephemeral server survived.
+[debug] [2020-03-14T19:46:50.078Z] [functions] Finished "createPlayer" in ~1s
+[debug] [2020-03-14T19:46:50.078Z] DEBUG: [worker-createPlayer-1ca38625-abbb-4bc6-9239-9153e708f4d5]: IDLE
+[debug] [2020-03-14T19:46:50.078Z] [work-queue] {"queueLength":0,"workRunningCount":0}

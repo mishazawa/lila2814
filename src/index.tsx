@@ -9,15 +9,22 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import { Sketch } from './game';
+import Connect from './game/connect';
+import { init as initFirebase } from './database/common';
+
+
 import {
   BrowserRouter as Router,
   Route
 } from "react-router-dom";
 
+initFirebase();
+
+
 const App = () => (
   <Router>
     <Route exact component={Sketch} path="/game/:id"/>
-    <Route exact component={Sketch} path="/"/>
+    <Route exact component={Connect} path="/"/>
   </Router>
 );
 

@@ -23,6 +23,8 @@ import {
   addCharacters,
 } from './loadAssets';
 
+import { app as Firebase } from '../database/common';
+
 
 export const create = ({
   setup,
@@ -41,12 +43,14 @@ export const create = ({
 const gameState = {
   counter: 0,
   layers: [],
-  players: [],
+  players: {},
   animation: {
     background: [1, 3, 6],
   },
   characters: {},
-  field: null
+  field: null,
+  // status: 'waiting',
+  connectionHandler: () => {}
 }
 
 
@@ -62,7 +66,7 @@ export const preload = async function () {
   })
 }
 
-export const setup = function () {
+export const setup = async function () {
   this.createCanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
   this.frameRate(FRAMERATE);
   this.noSmooth();
@@ -77,34 +81,58 @@ export const setup = function () {
 
   createAnimationsForBackgroundLayers(gameState, ANIMATION_SPEED_SKY);
 
-  // if (DEBUG) {
-  //   // create players test
-  //   _.set(gameState, 'players', Object.keys(gameState.characters).map((username, id) => new Character(this, {
-  //     gameState,
-  //     id,
-  //     username,
-  //     config: gameState.characters[username]
-  //   })))
+  if (DEBUG) {
+    const button = this.createButton('roll');
+    button.mousePressed(() => {
+      const rollData = {
+        roll: Math.floor(Math.random() * 6) + 1,
+        player: gameState.counter % Object.keys(gameState.players).length
+      }
 
-  //   const button = this.createButton('roll');
-  //   button.mousePressed(() => {
-  //     const rollData = {
-  //       roll: Math.floor(Math.random() * 6) + 1,
-  //       player: gameState.counter % gameState.players.length
-  //     }
+      const key = Object.keys(gameState.players)[rollData.player]
 
-  //     gameState.players[rollData.player].move(rollData.roll);
-  //     gameState.counter += 1;
-  //   });
-  // }
+      gameState.players[key].move(rollData.roll);
+      gameState.counter += 1;
+    });
+  }
 
-  this.firebase.getGame(this.data.id).onSnapshot((doc) => {
-    setGameState(doc.data());
+  const chars = _.shuffle(['pink', 'blue', 'red', 'yellow'])
+
+  const players = await Firebase.getPlayers(this.data.id).get()
+
+  // restore players
+  players.docs.forEach((pl) => {
+    const player = pl.data();
+    _.set(gameState.players, player.id, instPlayer(this, player, chars));
   });
 
-  this.firebase.getPlayers(this.data.id).onSnapshot(({docs}) => {
-    setGameState({players: docs.map(p => p.data())});
+  Firebase.getGame(this.data.id).onSnapshot((snapshot) => {
+    const next = snapshot.data()
+    const prev = gameState;
+
+    if (next.status === 'waiting') {
+
+      // wait for new players (ignore already restored users)
+      gameState.connectionHandler = Firebase.getPlayers(this.data.id).onSnapshot((snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === 'added') {
+            const player = change.doc.data();
+            if (gameState.players[player.id]) return;
+            _.set(gameState.players, player.id, instPlayer(this, player, chars));
+          }
+        });
+      });
+    }
+
+    if (prev.status !== next.status && prev.status === 'waiting') {
+      console.log('switch to game')
+      gameState.connectionHandler();
+    }
+
+    setGameState(next);
   });
+
+
 }
 
 export const draw = function () {
@@ -117,7 +145,9 @@ export const draw = function () {
 
   gameState.field.render();
 
-  gameState.players.forEach(p => p.render())
+  for (let p in gameState.players) {
+    gameState.players[p].render()
+  }
 
   this.pop();
 }
@@ -126,3 +156,11 @@ export const draw = function () {
 const setGameState = (update) => {
   _.assignIn(gameState, update);
 }
+
+const instPlayer = (renderer, data, chars) => new Character(renderer, {
+  gameState,
+  id: data.id,
+  username: data.username,
+  skin_id: chars[data.queueOrder],
+  config: gameState.characters[chars[data.queueOrder]]
+})
