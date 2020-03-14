@@ -8,3 +8,6 @@ typings/
 node_modules/
 
 serviceAccount.*
+*.log
+
+lib/

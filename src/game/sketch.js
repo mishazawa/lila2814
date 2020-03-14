@@ -10,21 +10,23 @@ import {
   FIELD_OFFSET,
   TILE_SIZE,
   DEBUG,
+  GAME_STATE,
 } from './constants';
 
 import { Animation } from './utils/Animation';
 import { Field }     from './utils/Field';
 import { Character } from './utils/Character';
+import { Ufo }       from './utils/Ufo';
 
 import {
   addBackgrounds,
   createAnimationsForBackgroundLayers,
   addEnvironmentObjects,
   addCharacters,
+  addUfo,
 } from './loadAssets';
 
 import { app as Firebase } from '../database/common';
-
 
 export const create = ({
   setup,
@@ -48,22 +50,25 @@ const gameState = {
     background: [1, 3, 6],
   },
   characters: {},
+  ufo: null,
   field: null,
-  // status: 'waiting',
+  gameOver: false,
   connectionHandler: () => {}
 }
-
 
 export const preload = async function () {
   addBackgrounds(gameState.layers, this.loadImage)
 
-  Promise.all([
+  const [characters, field, ufo] = await Promise.all([
     addCharacters({}, this.loadImage),
-    addEnvironmentObjects({}, this.loadImage)
-  ]).then(([characters, field]) => {
-    _.set(gameState, 'characters', characters.pop());
-    _.set(gameState, 'field', new Field(this, field.pop()));
-  })
+    addEnvironmentObjects({}, this.loadImage),
+    addUfo({}, this.loadImage),
+  ]);
+
+  _.set(gameState, 'characters', characters.pop());
+  _.set(gameState, 'field', new Field(this, field.pop()));
+  _.set(gameState, 'ufo', new Ufo(this, {...ufo, gameState}))
+
 }
 
 export const setup = async function () {
@@ -79,12 +84,15 @@ export const setup = async function () {
     }
   })));
 
+
   createAnimationsForBackgroundLayers(gameState, ANIMATION_SPEED_SKY);
 
   if (DEBUG) {
     const button = this.createButton('roll');
+
     button.mousePressed(() => {
       const rollData = {
+        // roll: 1,
         roll: Math.floor(Math.random() * 6) + 1,
         player: gameState.counter % Object.keys(gameState.players).length
       }
@@ -96,8 +104,8 @@ export const setup = async function () {
     });
   }
 
-  const chars = _.shuffle(['pink', 'blue', 'red', 'yellow'])
 
+  const chars = _.shuffle(['pink', 'blue', 'red', 'yellow'])
   const players = await Firebase.getPlayers(this.data.id).get()
 
   // restore players
@@ -110,7 +118,7 @@ export const setup = async function () {
     const next = snapshot.data()
     const prev = gameState;
 
-    if (next.status === 'waiting') {
+    if (next.status === GAME_STATE.waiting) {
 
       // wait for new players (ignore already restored users)
       gameState.connectionHandler = Firebase.getPlayers(this.data.id).onSnapshot((snapshot) => {
@@ -124,7 +132,7 @@ export const setup = async function () {
       });
     }
 
-    if (prev.status !== next.status && prev.status === 'waiting') {
+    if (prev.status !== next.status && prev.status === GAME_STATE.waiting) {
       console.log('switch to game')
       gameState.connectionHandler();
     }
@@ -145,11 +153,19 @@ export const draw = function () {
 
   gameState.field.render();
 
+
   for (let p in gameState.players) {
     gameState.players[p].render()
   }
 
+
+  gameState.ufo.render();
+
   this.pop();
+
+  // if (gameState.gameOver) {
+  //   this.noLoop();
+  // }
 }
 
 
@@ -160,6 +176,7 @@ const setGameState = (update) => {
 const instPlayer = (renderer, data, chars) => new Character(renderer, {
   gameState,
   id: data.id,
+  spot: data.spot || 0,
   username: data.username,
   skin_id: chars[data.queueOrder],
   config: gameState.characters[chars[data.queueOrder]]

@@ -1,7 +1,8 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import { initialGameState } from './utils';
-import { MAX_PLAYERS } from './constants';
+import { initialGameState, randomRoll, getStatus } from './utils';
+import { MAX_PLAYERS, GAME_STATE } from './constants';
+import _ from 'lodash';
 
 
 admin.initializeApp({});
@@ -44,12 +45,55 @@ export const getGame = functions.https.onCall(async (data, context) => {
   return game.data();
 });
 
-export const updateGame = functions.https.onCall((data, context) => {
-  return {}
-});
+export const updateGame = functions.https.onCall(async (data, context) => {
+  const { playerId, gameId, spot } = data;
 
-export const endGame = functions.https.onCall((data, context) => {
-  return {}
+  if (!playerId || !gameId) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'Function should be called with { playerId: string, gameId: string }');
+  }
+
+  const game = await firestore.collection('games').doc(gameId).get();
+
+  if (!game.exists) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'Game doesn\'t exists.');
+  }
+
+  const gameData = game.data();
+
+  if (!gameData) return null;
+
+  if (gameData.status !== GAME_STATE.moving) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'Game isn\'t in update state.');
+  }
+
+  const players = await game.ref.collection('players').get();
+
+  const previous = gameData.counter - 1 % players.size;
+
+  const playerSnapshot = _.find(players.docs, (doc) => {
+    const player = doc.data();
+    return player.queueOrder === previous && playerId === player.id;
+  });
+
+  if (!playerSnapshot) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'Player shouldn\'t update game.');
+  }
+
+  const writeBatch = firestore.batch();
+
+  writeBatch.update(playerSnapshot.ref, { spot });
+  writeBatch.update(game.ref, { status: getStatus(spot) });
+  await writeBatch.commit();
+
+  return { status: getStatus(spot) }
 });
 
 /*
@@ -79,8 +123,15 @@ export const createPlayer = functions.https.onCall(async (data, context) => {
       'Game doesn\'t exists.');
   }
 
-  const player = game.ref.collection('players').doc()
+  const gameData = game.data()
 
+  if (gameData && GAME_STATE.waiting !== gameData.status) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'Game already started.');
+  }
+
+  const player = game.ref.collection('players').doc()
 
   await firestore.runTransaction(async (tr: admin.firestore.Transaction) => {
     const players = await tr.get(game.ref.collection('players'))
@@ -92,6 +143,7 @@ export const createPlayer = functions.https.onCall(async (data, context) => {
       id: player.id,
       ref: player,
       queueOrder: players.size,
+      spot: 0,
     });
   })
 
@@ -129,11 +181,6 @@ export const getPlayer = functions.https.onCall(async (data, context) => {
   return player.data();
 });
 
-export const updatePlayer = functions.https.onCall((data, context) => {
-  return {}
-
-});
-
 /*
    ___ ___  _ __ ___  _ __ ___   ___  _ __
   / __/ _ \| '_ ` _ \| '_ ` _ \ / _ \| '_ \
@@ -141,6 +188,55 @@ export const updatePlayer = functions.https.onCall((data, context) => {
   \___\___/|_| |_| |_|_| |_| |_|\___/|_| |_|
 */
 
-export const roll = functions.https.onCall((data, context) => {
-  return {}
+export const rollDice = functions.https.onCall(async (data, context) => {
+  const { gameId, playerId } = data;
+
+  if (!playerId || !gameId) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'Function should be called with { playerId: string, gameId: string }');
+  }
+
+  const game = await firestore.collection('games').doc(gameId).get();
+
+  if (!game.exists) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'Game doesn\'t exists.');
+  }
+
+  const gameData = game.data()
+
+  if (!gameData) return null;
+
+  if (GAME_STATE.waitingForRoll !== gameData.status) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'Game not in roll state.');
+  }
+
+  const players = await game.ref.collection('players').get();
+
+  const current = gameData.counter % players.size;
+
+  const playerSnapshot = _.find(players.docs, (doc) => {
+    const player = doc.data();
+    return player.queueOrder === current && playerId === player.id;
+  });
+
+  if (!playerSnapshot) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'Player shouldn\'t move.');
+  }
+
+  const roll = randomRoll();
+  const spot = _.get(playerSnapshot.data(), 'spot', 0);
+
+  const writeBatch = firestore.batch();
+  writeBatch.set(game.ref.collection('rolls').doc(`${gameData.counter}`), { playerId, spot, roll, current });
+  writeBatch.update(game.ref, { counter: admin.firestore.FieldValue.increment(1), status: GAME_STATE.moving });
+  await writeBatch.commit();
+
+  return { roll };
 });

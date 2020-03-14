@@ -14,12 +14,12 @@
   },
   "main": "lib/index.js",
   "dependencies": {
+    "lodash": "^4.17.15",
     "firebase-admin": "^8.10.0",
     "firebase-functions": "^3.3.0"
   },
   "devDependencies": {
     "firebase-functions-test": "^0.1.6",
-    "lodash": "^4.17.15",
     "tslint": "^5.12.0",
     "typescript": "^3.2.2"
   },

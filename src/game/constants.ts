@@ -11,6 +11,9 @@ export const SCREEN_WIDTH    = SCREEN_HEIGHT * 1.8;
 
 export const ONSCREEN_OFFSET = Math.round(SCREEN_WIDTH / 4);
 
+export const UFO_TILE_WIDTH  = 96;
+export const UFO_TILE_HEIGHT = 64;
+
 export const PATHS = [
   [8, 26],
   [21, 82],
@@ -37,11 +40,23 @@ export const PATHS = [
 ]
 
 export const PLAYER_STATE = {
-  idle: 'idle',
-  walk: 'walk',
-  pretp: 2,
-  tp: 3,
-  posttp: 4,
-  stop: 5,
-  step: 6
+  idle:    'idle',
+  walk:    'walk',
+  stop:    'stop',
+  pre_tp:  'pre_tp',
+  post_tp: 'post_tp',
+  tp:      'tp'
+}
+
+export const UFO_STATE = {
+  no_render: 'no_render',
+  idle:      'idle',
+  finish:    'finish',
+}
+
+export const GAME_STATE = {
+  waiting:        'waiting_for_players',
+  waitingForRoll: 'waiting_for_roll',
+  moving:         'moving',
+  gameOver:       'game_over',
 }

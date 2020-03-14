@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { TILE_SIZE } from './constants'
+import { TILE_SIZE, UFO_TILE_WIDTH, UFO_TILE_HEIGHT } from './constants'
 
 // animated
 import bg01a  from '../assets/backgrounds/bg-02.png';
@@ -31,7 +31,6 @@ import portal_static   from '../assets/ambient/static/portal.png';
 
 // characters
 
-
 import pink_idle   from '../assets/characters/pink/idle.png'
 import pink_walk   from '../assets/characters/pink/walk.png'
 import pink_config from '../assets/characters/pink/config.json'
@@ -47,6 +46,12 @@ import blue_config from '../assets/characters/blue/config.json'
 import red_idle    from '../assets/characters/red/idle.png';
 import red_walk    from '../assets/characters/red/walk.png';
 import red_config  from '../assets/characters/red/config.json'
+
+// ufo
+
+import ufo_sprite  from '../assets/ambient/ufo/ufo.png'
+import ufo_config  from '../assets/ambient/ufo/config.json'
+
 
 
 const loadSprite = (loadImage, destination) => (file, name) => new Promise(res => loadImage(file, (img) => {
@@ -96,6 +101,12 @@ export const addCharacters = (destination, loadFn) => {
     load(blue_walk, 'blue.walk')
   ]);
 }
+
+export const addUfo = (destination, loadFn) => new Promise((res) => loadFn(ufo_sprite, (img) => {
+  _.set(destination, 'config', ufo_config);
+  _.set(destination, 'skin', _.times(img.width / UFO_TILE_WIDTH, (i) => img.get(UFO_TILE_WIDTH * i, 0, UFO_TILE_WIDTH, UFO_TILE_HEIGHT)));
+  return res(destination)
+}))
 
 const INFINITE_LAYERS = [1, 3, 5]
 const STATIC_COPIED_LAYERS = [0, 4, 6, 7]
