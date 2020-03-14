@@ -28,11 +28,13 @@ export const create = ({
   setup,
   draw,
   preload,
-  wrapper
+  wrapper,
+  ...args
 }) => new p5((p) => {
   p.setup   = setup.bind(p);
   p.draw    = draw.bind(p);
   p.preload = preload.bind(p);
+  _.assignIn(p, args)
 }, wrapper)
 
 
@@ -48,7 +50,7 @@ const gameState = {
 }
 
 
-export const preload = function () {
+export const preload = async function () {
   addBackgrounds(gameState.layers, this.loadImage)
 
   Promise.all([
@@ -75,27 +77,34 @@ export const setup = function () {
 
   createAnimationsForBackgroundLayers(gameState, ANIMATION_SPEED_SKY);
 
-  if (DEBUG) {
-    // create players test
-    _.set(gameState, 'players', Object.keys(gameState.characters).map((username, id) => new Character(this, {
-      gameState,
-      id,
-      username,
-      config: gameState.characters[username]
-    })))
+  // if (DEBUG) {
+  //   // create players test
+  //   _.set(gameState, 'players', Object.keys(gameState.characters).map((username, id) => new Character(this, {
+  //     gameState,
+  //     id,
+  //     username,
+  //     config: gameState.characters[username]
+  //   })))
 
-    const button = this.createButton('roll');
-    button.mousePressed(() => {
-      const rollData = {
-        roll: Math.floor(Math.random() * 6) + 1,
-        player: gameState.counter % gameState.players.length
-      }
+  //   const button = this.createButton('roll');
+  //   button.mousePressed(() => {
+  //     const rollData = {
+  //       roll: Math.floor(Math.random() * 6) + 1,
+  //       player: gameState.counter % gameState.players.length
+  //     }
 
-      gameState.players[rollData.player].move(rollData.roll);
-      gameState.counter += 1;
-    });
-  }
+  //     gameState.players[rollData.player].move(rollData.roll);
+  //     gameState.counter += 1;
+  //   });
+  // }
 
+  this.firebase.getGame(this.data.id).onSnapshot((doc) => {
+    setGameState(doc.data());
+  });
+
+  this.firebase.getPlayers(this.data.id).onSnapshot(({docs}) => {
+    setGameState({players: docs.map(p => p.data())});
+  });
 }
 
 export const draw = function () {
@@ -111,4 +120,9 @@ export const draw = function () {
   gameState.players.forEach(p => p.render())
 
   this.pop();
+}
+
+
+const setGameState = (update) => {
+  _.assignIn(gameState, update);
 }

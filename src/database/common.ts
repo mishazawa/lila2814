@@ -1,13 +1,30 @@
 import * as firebase from "firebase/app";
 import 'firebase/firestore';
+import 'firebase/functions';
+
 import { firebaseConfig } from './config';
 
-let app: firebase.app.App;
-let firestore: firebase.firestore.Firestore;
-
-export const getFirestore = (): firebase.firestore.Firestore => app.firestore();
-
 export const init = () => {
-  app = firebase.initializeApp(firebaseConfig);
-  firestore = getFirestore();
+  if (!firebase.apps.length) {
+    return Promise.resolve(new Firebase(firebase.initializeApp(firebaseConfig)))
+  }
+  return Promise.resolve(new Firebase(firebase.apps[0]));
+}
+
+interface Firebase {
+  app: firebase.app.App;
+}
+
+class Firebase implements Firebase {
+
+  constructor (app: firebase.app.App) {
+    this.app = app;
+  }
+
+  getFirestore = (): firebase.firestore.Firestore => this.app.firestore()
+  callFn = (id: string, data: any): Promise<any> => this.app.functions().httpsCallable(id)(data)
+
+  getGame = (id: string): firebase.firestore.DocumentReference => this.getFirestore().doc(`games/${id}`)
+
+  getPlayers = (id: string): firebase.firestore.CollectionReference => this.getFirestore().collection(`games/${id}/players`)
 }
