@@ -46,7 +46,7 @@ export const getGame = functions.https.onCall(async (data, context) => {
 });
 
 export const updateGame = functions.https.onCall(async (data, context) => {
-  const { playerId, gameId, spot } = data;
+  const { playerId, gameId, spot, start } = data;
 
   if (!playerId || !gameId) {
     throw new functions.https.HttpsError(
@@ -66,6 +66,17 @@ export const updateGame = functions.https.onCall(async (data, context) => {
 
   if (!gameData) return null;
 
+  if (start && gameData.status !== GAME_STATE.waiting) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'Game isn\'t in ready to start state.');
+  }
+
+  if (start && gameData.status === GAME_STATE.waiting) {
+    await game.ref.update({status: GAME_STATE.waitingForRoll});
+    return { started: true };
+  }
+
   if (gameData.status !== GAME_STATE.moving) {
     throw new functions.https.HttpsError(
       'failed-precondition',
@@ -74,12 +85,13 @@ export const updateGame = functions.https.onCall(async (data, context) => {
 
   const players = await game.ref.collection('players').get();
 
-  const previous = gameData.counter - 1 % players.size;
+  const previous = gameData.counter % players.size;
 
   const playerSnapshot = _.find(players.docs, (doc) => {
     const player = doc.data();
     return player.queueOrder === previous && playerId === player.id;
   });
+
 
   if (!playerSnapshot) {
     throw new functions.https.HttpsError(
@@ -90,7 +102,12 @@ export const updateGame = functions.https.onCall(async (data, context) => {
   const writeBatch = firestore.batch();
 
   writeBatch.update(playerSnapshot.ref, { spot });
-  writeBatch.update(game.ref, { status: getStatus(spot) });
+  writeBatch.update(game.ref, {
+    counter: admin.firestore.FieldValue.increment(1),
+    status: getStatus(spot),
+    roll: null,
+  });
+
   await writeBatch.commit();
 
   return { status: getStatus(spot) }
@@ -141,7 +158,6 @@ export const createPlayer = functions.https.onCall(async (data, context) => {
     return tr.set(player, {
       username,
       id: player.id,
-      ref: player,
       queueOrder: players.size,
       spot: 0,
     });
@@ -230,13 +246,15 @@ export const rollDice = functions.https.onCall(async (data, context) => {
       'Player shouldn\'t move.');
   }
 
-  const roll = randomRoll();
-  const spot = _.get(playerSnapshot.data(), 'spot', 0);
 
-  const writeBatch = firestore.batch();
-  writeBatch.set(game.ref.collection('rolls').doc(`${gameData.counter}`), { playerId, spot, roll, current });
-  writeBatch.update(game.ref, { counter: admin.firestore.FieldValue.increment(1), status: GAME_STATE.moving });
-  await writeBatch.commit();
+  await game.ref.update({
+    status: GAME_STATE.moving,
+    roll: {
+      next: current,
+      roll: randomRoll()
+    }
+  });
 
-  return { roll };
+
+  return { next: current };
 });

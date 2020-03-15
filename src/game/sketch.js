@@ -87,21 +87,38 @@ export const setup = async function () {
 
   createAnimationsForBackgroundLayers(gameState, ANIMATION_SPEED_SKY);
 
-  if (DEBUG) {
+  if (false && DEBUG) {
     const button = this.createButton('roll');
+    const button2 = this.createButton('create player');
+    const button3 = this.createButton('start game');
 
     button.mousePressed(() => {
-      const rollData = {
-        // roll: 1,
-        roll: Math.floor(Math.random() * 6) + 1,
-        player: gameState.counter % Object.keys(gameState.players).length
-      }
-
-      const key = Object.keys(gameState.players)[rollData.player]
-
-      gameState.players[key].move(rollData.roll);
-      gameState.counter += 1;
+      const next = gameState.counter % Object.keys(gameState.players).length;
+      const player = _.find(gameState.players, (pl) => pl.queueOrder === next)
+      if (!player) return;
+      Firebase.callFn('rollDice', {
+        gameId: this.data.id,
+        playerId: player.id,
+      }).catch((err) => {})
     });
+
+
+    button2.mousePressed(() => {
+      Firebase.callFn('createPlayer', {
+        gameId: this.data.id,
+        username: 'test_player' + Object.keys(gameState.players).length
+      }).catch((err) => {})
+    });
+
+    button3.mousePressed(() => {
+      const key = Object.keys(gameState.players)[0];
+
+      Firebase.callFn('updateGame', {
+        gameId: this.data.id,
+        playerId: gameState.players[key].id,
+        start: true,
+      }).catch((err) => {})
+    })
   }
 
 
@@ -114,27 +131,26 @@ export const setup = async function () {
     _.set(gameState.players, player.id, instPlayer(this, player, chars));
   });
 
-  Firebase.getGame(this.data.id).onSnapshot((snapshot) => {
+  Firebase.getGame(this.data.id).onSnapshot(async (snapshot) => {
     const next = snapshot.data()
     const prev = gameState;
 
-    if (next.status === GAME_STATE.waiting) {
-
-      // wait for new players (ignore already restored users)
-      gameState.connectionHandler = Firebase.getPlayers(this.data.id).onSnapshot((snapshot) => {
-        snapshot.docChanges().forEach((change) => {
-          if (change.type === 'added') {
-            const player = change.doc.data();
-            if (gameState.players[player.id]) return;
-            _.set(gameState.players, player.id, instPlayer(this, player, chars));
-          }
+    if (prev.status !== next.status) {
+      if (next.status === GAME_STATE.waiting) {
+        // wait for new players (ignore already restored users)
+        gameState.connectionHandler = Firebase.getPlayers(this.data.id).onSnapshot((snapshot) => {
+          snapshot.docChanges().forEach((change) => {
+            if (change.type === 'added') {
+              const player = change.doc.data();
+              if (gameState.players[player.id]) return;
+              _.set(gameState.players, player.id, instPlayer(this, player, chars));
+            }
+          });
         });
-      });
-    }
+      }
 
-    if (prev.status !== next.status && prev.status === GAME_STATE.waiting) {
-      console.log('switch to game')
-      gameState.connectionHandler();
+      applyStartGame(prev, next);
+      applyRoll(prev, next)((player, roll) => player.move(roll));
     }
 
     setGameState(next);
@@ -178,6 +194,21 @@ const instPlayer = (renderer, data, chars) => new Character(renderer, {
   id: data.id,
   spot: data.spot || 0,
   username: data.username,
+  queueOrder: data.queueOrder,
   skin_id: chars[data.queueOrder],
   config: gameState.characters[chars[data.queueOrder]]
 })
+
+const applyRoll = (prev, next) => (fn) => {
+  if (prev.status === GAME_STATE.waitingForRoll && next.status === GAME_STATE.moving) {
+    const roll = next.roll;
+    const player = _.find(gameState.players, (pl) => pl.queueOrder === roll.next)
+    if (player) fn(player, roll.roll);
+  }
+}
+
+const applyStartGame = (prev, next) => {
+  if (prev.status === GAME_STATE.waiting) {
+    gameState.connectionHandler();
+  }
+}

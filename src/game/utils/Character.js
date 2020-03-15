@@ -3,6 +3,7 @@ import * as p5 from 'p5'
 import { Renderable } from './Renderable';
 import { TILE_SIZE, PLAYER_STATE } from "../constants";
 import { SequenceAnimation } from './Animation';
+import { app as Firebase } from '../../database/common';
 
 
 export class Character extends Renderable {
@@ -41,7 +42,7 @@ export class Character extends Renderable {
   }
 
   move = (rollNumber) => {
-    if (rollNumber <= 0) return this.setState(PLAYER_STATE.stop);
+    if (rollNumber <= 0) return this.stopMoving();
     this.rollNumber = rollNumber;
     if (this.checkLastSpot()) {
       if (!this.gameState.gameOver) {
@@ -158,6 +159,15 @@ export class Character extends Renderable {
 
   setSpotPosition = () => {
     this.position = this.assingPosition(this.gameState.field.tiles[this.spot].coords())
+  }
+
+  stopMoving = () => {
+    this.setState(PLAYER_STATE.stop);
+    return Firebase.callFn('updateGame', {
+      gameId: this.renderer.data.id,
+      playerId: this.id,
+      spot: this.spot,
+    }).catch((err) => {})
   }
 
   assingPosition = ({x, y, direction}) => this.renderer.createVector(x, y, direction);

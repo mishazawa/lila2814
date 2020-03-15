@@ -30,4 +30,5 @@ class Firebase implements Firebase {
   getGame = (id: string): firebase.firestore.DocumentReference => this.getFirestore().doc(`games/${id}`)
 
   getPlayers = (id: string): firebase.firestore.CollectionReference => this.getFirestore().collection(`games/${id}/players`)
+
 }
