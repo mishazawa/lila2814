@@ -14,7 +14,7 @@
   },
   "main": "lib/index.js",
   "dependencies": {
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "firebase-admin": "^8.10.0",
     "firebase-functions": "^3.3.0"
   },
