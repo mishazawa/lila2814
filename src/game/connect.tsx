@@ -1,7 +1,7 @@
 import React from 'react';
 import { withRouter, RouteComponentProps } from "react-router";
 
-import { app } from '../database/common';
+import { app } from '../database/mock';
 
 class Connect extends React.Component<RouteComponentProps> {
 

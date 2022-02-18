@@ -10,7 +10,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import { Sketch } from './game';
 import Connect from './game/connect';
-import { init as initFirebase } from './database/common';
+import { init as initFirebase } from './database/mock';
 
 
 import {

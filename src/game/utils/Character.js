@@ -3,7 +3,7 @@ import * as p5 from 'p5'
 import { Renderable } from './Renderable';
 import { TILE_SIZE, PLAYER_STATE } from "../constants";
 import { SequenceAnimation } from './Animation';
-import { app as Firebase } from '../../database/common';
+// import { app as Firebase } from '../../database/common';
 
 
 export class Character extends Renderable {
@@ -41,16 +41,26 @@ export class Character extends Renderable {
     this.update();
   }
 
+  setNewSpot = (rollNumber, res) => new Promise((res, rej) => {
+    this.rollNumber = rollNumber;
+    this.resolveOnEnd = res;
+    this.rejectOnEnd = rej;
+    this.move(this.rollNumber);
+  }) 
+
   move = (rollNumber) => {
     if (rollNumber <= 0) return this.stopMoving();
     this.rollNumber = rollNumber;
+    
     if (this.checkLastSpot()) {
       if (!this.gameState.gameOver) {
         this.gameState.gameOver = true;
         this.setState(PLAYER_STATE.tp);
+        this.rejectOnEnd();
       }
-      return
+      return;
     }
+
     this.succSpot();
     this.setState(PLAYER_STATE.walk);
 
@@ -73,6 +83,9 @@ export class Character extends Renderable {
   }
 
   teleportation = () => {
+
+    this.resolveOnEnd(this.spot);
+    
     const { tiles, green_mask_anim, red_mask_anim } = this.gameState.field;
     if (tiles[this.spot].snake) return this.teleport(red_mask_anim);
     if (tiles[this.spot].ladder) return this.teleport(green_mask_anim);
@@ -163,11 +176,6 @@ export class Character extends Renderable {
 
   stopMoving = () => {
     this.setState(PLAYER_STATE.stop);
-    return Firebase.callFn('updateGame', {
-      gameId: this.renderer.data.id,
-      playerId: this.id,
-      spot: this.spot,
-    }).catch((err) => {})
   }
 
   assingPosition = ({x, y, direction}) => this.renderer.createVector(x, y, direction);

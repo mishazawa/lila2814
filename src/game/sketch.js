@@ -9,7 +9,6 @@ import {
   ONSCREEN_OFFSET,
   FIELD_OFFSET,
   TILE_SIZE,
-  DEBUG,
   GAME_STATE,
 } from './constants';
 
@@ -26,7 +25,13 @@ import {
   addUfo,
 } from './loadAssets';
 
-import { app as Firebase } from '../database/common';
+const MAX_SPOT    = 99;
+
+const randomRoll = () => Math.floor(Math.random() * 6) + 1
+const getStatus = (spot) => spot > MAX_SPOT ? GAME_STATE.gameOver : GAME_STATE.waitingForRoll;
+const gameOver = () => {
+
+}
 
 export const create = ({
   setup,
@@ -87,76 +92,67 @@ export const setup = async function () {
 
   createAnimationsForBackgroundLayers(gameState, ANIMATION_SPEED_SKY);
 
-  if (false && DEBUG) {
-    const button = this.createButton('roll');
-    const button2 = this.createButton('create player');
-    const button3 = this.createButton('start game');
-
-    button.mousePressed(() => {
-      const next = gameState.counter % Object.keys(gameState.players).length;
-      const player = _.find(gameState.players, (pl) => pl.queueOrder === next)
-      if (!player) return;
-      Firebase.callFn('rollDice', {
-        gameId: this.data.id,
-        playerId: player.id,
-      }).catch((err) => {})
-    });
-
-
-    button2.mousePressed(() => {
-      Firebase.callFn('createPlayer', {
-        gameId: this.data.id,
-        username: 'test_player' + Object.keys(gameState.players).length
-      }).catch((err) => {})
-    });
-
-    button3.mousePressed(() => {
-      const key = Object.keys(gameState.players)[0];
-
-      Firebase.callFn('updateGame', {
-        gameId: this.data.id,
-        playerId: gameState.players[key].id,
-        start: true,
-      }).catch((err) => {})
-    })
-  }
-
-
   const chars = _.shuffle(['pink', 'blue', 'red', 'yellow'])
-  const players = await Firebase.getPlayers(this.data.id).get()
 
-  // restore players
-  players.docs.forEach((pl) => {
-    const player = pl.data();
-    _.set(gameState.players, player.id, instPlayer(this, player, chars));
-  });
+  const button = this.createButton('roll');
+  const button2 = this.createButton('create player');
+  const button3 = this.createButton('start game');
 
-  Firebase.getGame(this.data.id).onSnapshot(async (snapshot) => {
-    const next = snapshot.data()
-    const prev = gameState;
+  button.mousePressed(() => {
+    if (gameState.status !== GAME_STATE.waitingForRoll) return;
 
-    if (prev.status !== next.status) {
-      if (next.status === GAME_STATE.waiting) {
-        // wait for new players (ignore already restored users)
-        gameState.connectionHandler = Firebase.getPlayers(this.data.id).onSnapshot((snapshot) => {
-          snapshot.docChanges().forEach((change) => {
-            if (change.type === 'added') {
-              const player = change.doc.data();
-              if (gameState.players[player.id]) return;
-              _.set(gameState.players, player.id, instPlayer(this, player, chars));
-            }
-          });
-        });
+    const next = gameState.counter % Object.keys(gameState.players).length;
+    const player = _.find(gameState.players, (pl) => pl.queueOrder === next)
+    
+    if (!player) return;
+    
+    const nextStatus = {
+      status: GAME_STATE.moving,
+      roll: {
+        next,
+        roll: randomRoll()
       }
+    };
 
-      applyStartGame(prev, next);
-      applyRoll(prev, next)((player, roll) => player.move(roll));
-    }
+    const prevStatus = {
+      status: gameState.status,
+    };
 
-    setGameState(next);
+    setGameState({
+      status: GAME_STATE.moving
+    });
+    
+    applyRoll(prevStatus, nextStatus)((player, roll) => player.setNewSpot(roll).then((spot) => {
+      setGameState({
+        status: getStatus(spot),
+        counter: gameState.counter + 1,
+      })
+    }).catch(() => {
+      setGameState({
+        status: GAME_STATE.gameOver,
+        counter: gameState.counter + 1,
+      })
+      gameOver()
+    }));
   });
 
 
+  button2.mousePressed(() => {
+    const queueOrder = Object.keys(gameState.players).length;
+    const id = 'test_player' + queueOrder;
+    const pl = {
+      id,
+      username: id,
+      queueOrder,
+      spot: 0,
+    }
+    _.set(gameState.players, pl.id, instPlayer(this, pl, chars));
+  });
+
+  button3.mousePressed(() => {
+    if (Object.keys(gameState.players).length < 2) return;
+    _.set(gameState, "status", GAME_STATE.waitingForRoll);
+  })
 }
 
 export const draw = function () {
@@ -178,10 +174,6 @@ export const draw = function () {
   gameState.ufo.render();
 
   this.pop();
-
-  // if (gameState.gameOver) {
-  //   this.noLoop();
-  // }
 }
 
 
@@ -203,12 +195,7 @@ const applyRoll = (prev, next) => (fn) => {
   if (prev.status === GAME_STATE.waitingForRoll && next.status === GAME_STATE.moving) {
     const roll = next.roll;
     const player = _.find(gameState.players, (pl) => pl.queueOrder === roll.next)
-    if (player) fn(player, roll.roll);
+    if (player) return fn(player, roll.roll);
   }
 }
 
-const applyStartGame = (prev, next) => {
-  if (prev.status === GAME_STATE.waiting) {
-    gameState.connectionHandler();
-  }
-}

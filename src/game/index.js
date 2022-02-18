@@ -3,7 +3,7 @@ import { withRouter } from "react-router";
 
 import { create, setup, draw, preload } from './sketch'
 
-import { app } from '../database/common';
+import { app } from '../database/mock';
 
 
 class SketchWrapper extends React.Component {
