@@ -125,7 +125,7 @@ export class Character extends Renderable {
     }
   }
 
-  setState = (state) => this.state = state
+  setState = (state = PLAYER_STATE.idle) => this.state = state
 
   succSpot = () => {
     this.spot += 1;

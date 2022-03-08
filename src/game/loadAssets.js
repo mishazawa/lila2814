@@ -49,10 +49,15 @@ import red_config  from '../assets/characters/red/config.json'
 
 // ufo
 
-import ufo_sprite  from '../assets/ambient/ufo/ufo.png'
-import ufo_config  from '../assets/ambient/ufo/config.json'
+import ufo_sprite  from '../assets/ambient/ufo/ufo.png';
+import ufo_config  from '../assets/ambient/ufo/config.json';
 
+// buttons
 
+import button_start       from '../assets/buttons/start_game.png';
+import button_add_player  from '../assets/buttons/add_player.png';
+import button_roll        from '../assets/buttons/roll.png';
+import button_replay      from '../assets/buttons/replay.png';
 
 const loadSprite = (loadImage, destination) => (file, name) => new Promise(res => loadImage(file, (img) => {
   if (img.width === TILE_SIZE) {
@@ -65,6 +70,13 @@ const loadSprite = (loadImage, destination) => (file, name) => new Promise(res =
 
 export const addBackgrounds = (destination, loadFn) => {
   [bg01, bg01a, bg02, bg02a, bg03, bg03a, bg04, bg05, stairs].forEach((asset) => destination.push(loadFn(asset)))
+}
+
+export const addButtons = (dest, loadFn) => {
+  dest.start      = loadFn(button_start);
+  dest.add_player = loadFn(button_add_player);
+  dest.roll       = loadFn(button_roll);
+  dest.replay     = loadFn(button_replay);
 }
 
 export const addEnvironmentObjects = (destination, loadFn) => {
