@@ -29,7 +29,7 @@ import {
 
 const MAX_SPOT    = 99;
 
-const randomRoll = () => 1; //Math.floor(Math.random() * 6) + 1
+const randomRoll = () => Math.floor(Math.random() * 6) + 1;
 const getStatus = (spot) => spot > MAX_SPOT ? GAME_STATE.gameOver : GAME_STATE.waitingForRoll;
 const gameOver = (player) => {
   gameState.winner = player;
@@ -111,23 +111,27 @@ const drawGameplay = function (r) {
 
 let currentFrame = 0;
 
-const drawPlayer = (r, skin, gs = false) => {
+const drawPlayer = (r, skin, gs = false, animate = true) => {
   const frames = skin[PLAYER_STATE.idle];
-  if (r.frameCount % skin.config.fps[PLAYER_STATE.idle] === 0) {
-    currentFrame++;
+  let frame = frames[0];
+  if (animate) {
+    if (r.frameCount % skin.config.fps[PLAYER_STATE.idle] === 0) {
+      currentFrame++;
+    }
+
+    if (currentFrame === skin[PLAYER_STATE.idle].length) {
+      currentFrame = 0;
+    }
+
+    frame = frames[currentFrame % frames.length];
   }
 
-  if (currentFrame === skin[PLAYER_STATE.idle].length) {
-    currentFrame = 0;
-  }
-
-  const frame = frames[currentFrame % frames.length];
   if (gs) frame.filter(r.GRAY);
 
   r.push()
   r.translate(
     SCREEN_WIDTH /2 - frame.width * 2,
-    SCREEN_HEIGHT/2 - frame.height);
+    SCREEN_HEIGHT/3 - frame.height);
   r.scale(4)
   r.image(frame, 0, 0)
   r.pop()
@@ -145,7 +149,7 @@ const drawReplay = function (r) {
   Object.keys(gameState.players).forEach((k) => {
     const {skin_id} = gameState.players[k];
     if (skin_id === winner) return;
-    drawPlayer(r, gameState.characters[skin_id], true);
+    drawPlayer(r, gameState.characters[skin_id], true, false);
   });
 
   drawPlayer(r, gameState.characters[winner]);
@@ -187,9 +191,9 @@ export const preload = async function () {
     },
     replay: {
       a: SCREEN_WIDTH /2 - gameState.menu.buttons.replay.width /2,
-      b: SCREEN_HEIGHT/2 - gameState.menu.buttons.replay.height/2,
+      b: SCREEN_HEIGHT - SCREEN_HEIGHT/3 - gameState.menu.buttons.replay.height,
       c: SCREEN_WIDTH /2 - gameState.menu.buttons.replay.width /2 + gameState.menu.buttons.replay.width,
-      d: SCREEN_HEIGHT/2 - gameState.menu.buttons.replay.height/2 + gameState.menu.buttons.replay.height,
+      d: SCREEN_HEIGHT - SCREEN_HEIGHT/3 - gameState.menu.buttons.replay.height + gameState.menu.buttons.replay.height,
     }
   });
 }
@@ -246,12 +250,13 @@ const addPlayerHandler = (r) => {
     id,
     username: id,
     queueOrder,
-    spot: 99,
+    spot: 0,
   }
   _.set(gameState.players, pl.id, instPlayer(r, pl, chars));
 };
 
 export const setup = async function () {
+  this.pixelDensity(3.0);
   const c = this.createCanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
   this.frameRate(FRAMERATE);
   this.noSmooth();
@@ -273,7 +278,7 @@ export const setup = async function () {
       if (checkPosition(x, y, gameState.buttonPosition.start)) {
         startGameHandler();
       }
-      if (checkPosition(x, y, gameState.buttonPosition.add_player)) {
+      if (checkPosition(x, y, gameState.buttonPosition.add_player) && Object.keys(gameState.players).length < 4) {
         addPlayerHandler(this);
       }
     }
@@ -281,6 +286,12 @@ export const setup = async function () {
     if (gameState.status === GAME_STATE.waitingForRoll) {
       if (checkPosition(x, y, gameState.buttonPosition.roll)) {
         rollHandler();
+      }
+    }
+
+    if (gameState.status === GAME_STATE.gameOver) {
+      if (checkPosition(x, y, gameState.buttonPosition.replay)) {
+        window.location.reload();
       }
     }
   });
@@ -331,7 +342,7 @@ const instPlayer = (renderer, data, chars) => new Character(renderer, {
   username: data.username,
   queueOrder: data.queueOrder,
   skin_id: chars[data.queueOrder],
-  config: gameState.characters[chars[data.queueOrder]]
+  config: gameState.characters[chars[data.queueOrder]],
 })
 
 const applyRoll = (prev, next) => (fn) => {
