@@ -31,7 +31,5 @@ canvas {
 
 .p5Canvas {
   display: block;
-  margin: 0 auto;
-  text-align: center;
   height: 720px;
 }
