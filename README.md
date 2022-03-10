@@ -1,6 +1,6 @@
 # Lila
 
-![Lila](null.jpg "Lila")
+![Lila](https://github.com/mishazawa/lila2814/blob/b54a60987c2a91a3d5945b27c305db584c7974ea/public/cover.png "Lila")
 
 [Play on Itch.io](https://mishazawa.itch.io/lila)
 
