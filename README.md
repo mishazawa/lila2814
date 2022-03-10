@@ -7,6 +7,7 @@
 ##### Programming:
 
 [@nikitalaletin](https://github.com/nikitalaletin)
+
 [@mishazawa](https://github.com/@mishazawa)
 
 ##### Art:
