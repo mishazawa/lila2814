@@ -128,6 +128,33 @@ export const drawReplayInit = (r, gameState, drawPlayer) => () => {
   drawPlayer(gameState.characters[winner]);
 }
 
+export const drawCurrentRollInit = (r, gameState) => () => {
+  const bp = gameState.buttonPosition;
+  const b = gameState.menu.buttons;
+
+  r.push()
+  r.textSize(24);
+  r.textAlign(r.CENTER, r.CENTER);
+  r.fill("#2CD692");
+  r.text(gameState.roll, bp.roll.a, bp.roll.b, b.roll.width, b.roll.height);
+  r.pop()
+}
+
+export const drawCurrentPlayerInit = (r, gameState) => () => {
+  if (!gameState.currentPlayer) return;
+
+  const skin = gameState.characters[gameState.currentPlayer.skin_id];
+  const frames = skin[PLAYER_STATE.idle];
+  let frame = frames[0];
+
+  const bp = gameState.buttonPosition;
+  r.push()
+  r.translate(bp.roll.a - 65, bp.roll.b - 24);
+  r.scale(2)
+  r.image(frame, 0, 0);
+  r.pop()
+}
+
 export const instPlayer = (renderer, data, chars, gameState) => new Character(renderer, {
   gameState,
   id: data.id,

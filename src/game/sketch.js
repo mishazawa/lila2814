@@ -1,4 +1,6 @@
+import "./globals";
 import * as p5 from 'p5';
+import 'p5/lib/addons/p5.sound';
 import _ from 'lodash';
 
 import {
@@ -25,6 +27,7 @@ import {
   addEnvironmentObjects,
   addCharacters,
   addUfo,
+  addSound,
 } from './loadAssets';
 
 
@@ -38,6 +41,8 @@ import {
   drawMenuInit,
   drawGameplayInit,
   drawReplayInit,
+  drawCurrentPlayerInit,
+  drawCurrentRollInit,
 } from './utils';
 
 
@@ -56,6 +61,7 @@ export const create = ({
 
 const gameState = {
   counter: 0,
+  roll: 0,
   layers: [],
   menu: {
     buttons: {},
@@ -72,14 +78,18 @@ const gameState = {
   gameOver: false, // mb useless
   connectionHandler: () => {},
   buttonPosition: null,
+  currentPlayer: null,
+  sound: {},
 };
 
-let drawPlayer   = null;
-let drawMenu     = null;
-let drawGameplay = null;
-let drawReplay   = null;
+let drawPlayer        = _.noop;
+let drawMenu          = _.noop;
+let drawGameplay      = _.noop;
+let drawReplay        = _.noop;
+let drawCurrentPlayer = _.noop;
+let drawCurrentRoll   = _.noop;
 
-const chars = _.shuffle(['pink', 'blue', 'red', 'yellow'])
+const chars = ['red','yellow', 'pink', 'blue'];
 
 export const preload = async function () {
   addBackgrounds(gameState.layers, this.loadImage);
@@ -87,6 +97,8 @@ export const preload = async function () {
   // can't use same pictures because of filter GRAY
   addButtons(gameState.menu.buttons, this.loadImage);
   addButtons(gameState.menu.buttons_gs, this.loadImage);
+
+  addSound(gameState.sound, this.loadSound);
 
   const [characters, characters_gs, field, ufo] = await Promise.all([
     addCharacters({}, this.loadImage),
@@ -101,23 +113,20 @@ export const preload = async function () {
   _.set(gameState, 'ufo', new Ufo(this, {...ufo, gameState}))
   _.set(gameState, "buttonPosition", calcButtonsPositions(gameState.menu.buttons));
 
-  // create copy of first frame characters for final screen
-  // Object.keys(gameState.characters).forEach(k => _.set(
-  //   gameState,
-  //   ['characters_gs', k, PLAYER_STATE.idle],
-  //   [_.cloneDeep(gameState.characters[k][PLAYER_STATE.idle][0])]
-  // ))
-
   // menu's and final screen functions
   drawPlayer = drawPlayerInit(this);
   drawMenu = drawMenuInit(this, gameState);
   drawGameplay = drawGameplayInit(this, gameState);
   drawReplay = drawReplayInit(this, gameState, drawPlayer);
+  drawCurrentPlayer = drawCurrentPlayerInit(this, gameState);
+  drawCurrentRoll = drawCurrentRollInit(this, gameState);;
 }
 
 export const setup = async function () {
+  const canvas = this.createCanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
+
   this.pixelDensity(3.0);
-  const c = this.createCanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
+  this.soundFormats('ogg');
   this.frameRate(FRAMERATE);
   this.noSmooth();
 
@@ -131,7 +140,7 @@ export const setup = async function () {
 
   createAnimationsForBackgroundLayers(gameState, ANIMATION_SPEED_SKY);
 
-  c.mouseClicked((ev) => {
+  canvas.mouseClicked((ev) => {
     const [x, y] = [this.mouseX, this.mouseY];
 
     if (gameState.status === GAME_STATE.waitingForPlayers) {
@@ -155,6 +164,10 @@ export const setup = async function () {
       }
     }
   });
+
+  gameState.sound.bkg.setVolume(0.150);
+  gameState.sound.bkg.play();
+  gameState.sound.bkg.setLoop(true);
 }
 
 
@@ -178,15 +191,22 @@ export const draw = function () {
   if (gameState.status === GAME_STATE.waitingForPlayers) {
     this.fill(TINT_COLOR);
     this.rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-    drawMenu(this);
+    drawMenu();
   }
+
+  if (gameState.status === GAME_STATE.waitingForRoll || gameState.status === GAME_STATE.moving) {
+    drawCurrentPlayer();
+    drawCurrentRoll();
+  }
+
   if (gameState.status === GAME_STATE.waitingForRoll) {
-    drawGameplay(this);
+    drawGameplay();
   }
+
   if (gameState.status === GAME_STATE.gameOver) {
     this.fill(TINT_COLOR);
     this.rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-    drawReplay(this);
+    drawReplay();
   }
 }
 
@@ -198,11 +218,13 @@ const rollHandler = () => {
 
   if (!player) return;
 
+  const roll = randomRoll();
+
   const nextStatus = {
     status: GAME_STATE.moving,
     roll: {
       next,
-      roll: randomRoll()
+      roll,
     }
   };
 
@@ -211,7 +233,9 @@ const rollHandler = () => {
   };
 
   setGameState({
-    status: GAME_STATE.moving
+    currentPlayer: player,
+    status: GAME_STATE.moving,
+    roll,
   });
 
   applyRoll(prevStatus, nextStatus)((player, roll) => player.setNewSpot(roll).then((spot) => {
@@ -219,6 +243,7 @@ const rollHandler = () => {
       status: getStatus(spot),
       counter: gameState.counter + 1,
     })
+    updateCurrentPlayer();
   }).catch(() => {
     setGameState({
       status: GAME_STATE.gameOver,
@@ -230,7 +255,8 @@ const rollHandler = () => {
 
 const startGameHandler = () => {
   if (Object.keys(gameState.players).length < 2) return;
-  _.set(gameState, "status", GAME_STATE.waitingForRoll);
+  updateCurrentPlayer();
+  setGameState({ status: GAME_STATE.waitingForRoll });
 };
 
 const addPlayerHandler = (r) => {
@@ -248,6 +274,13 @@ const addPlayerHandler = (r) => {
 const setGameState = (update) => {
   _.assignIn(gameState, update);
 }
+
+const updateCurrentPlayer = () => {
+  const current = gameState.counter % Object.keys(gameState.players).length;
+  const player  = _.find(gameState.players, (pl) => pl.queueOrder === current);
+  setGameState({currentPlayer: player});
+}
+
 // mess
 const applyRoll = (prev, next) => (fn) => {
   if (prev.status === GAME_STATE.waitingForRoll && next.status === GAME_STATE.moving) {

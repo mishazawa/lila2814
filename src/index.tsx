@@ -12,7 +12,6 @@ import { Sketch } from './game';
 import Connect from './game/connect';
 import { init as initFirebase } from './database/mock';
 
-
 import {
   BrowserRouter as Router,
   Route

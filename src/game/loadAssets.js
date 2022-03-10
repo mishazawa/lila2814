@@ -59,6 +59,11 @@ import button_add_player  from '../assets/buttons/add_player.png';
 import button_roll        from '../assets/buttons/roll.png';
 import button_replay      from '../assets/buttons/replay.png';
 
+// sounds
+
+import bkg_sound from '../assets/sound/bkg.ogg';
+
+
 const loadSprite = (loadImage, destination) => (file, name) => new Promise(res => loadImage(file, (img) => {
   if (img.width === TILE_SIZE) {
     _.set(destination, name, img);
@@ -143,4 +148,9 @@ export const createAnimationsForBackgroundLayers = (gameState, animationSpeedSky
       this.renderer.image(this.layer, this.layer.width, 0);
     }
   })
+}
+
+
+export const addSound = (dest, loadFn) => {
+  dest.bkg = loadFn(bkg_sound);
 }
