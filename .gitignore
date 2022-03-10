@@ -24,3 +24,5 @@ yarn-error.log*
 
 /src/database/config.*s
 .test
+*.zip
+.firebase/
