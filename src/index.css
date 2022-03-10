@@ -6,6 +6,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
+  background: #111;
 }
 
 code {
@@ -21,7 +22,16 @@ canvas {
     image-rendering: crisp-edges;
     -ms-interpolation-mode: nearest-neighbor;
 }
+.sketch {
+  display: block;
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
 .p5Canvas {
-  width: auto !important;
-  height: 720px !important;
+  display: block;
+  margin: 0 auto;
+  text-align: center;
+  height: 720px;
 }

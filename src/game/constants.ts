@@ -13,6 +13,8 @@ export const ONSCREEN_OFFSET = Math.round(SCREEN_WIDTH / 4);
 
 export const UFO_TILE_WIDTH  = 96;
 export const UFO_TILE_HEIGHT = 64;
+export const MAX_SPOT        = 99;
+export const START_SPOT      = 0;
 
 export const PATHS = [
   [8, 26],
@@ -60,3 +62,5 @@ export const GAME_STATE = {
   moving:         'moving',
   gameOver:       'game_over',
 }
+
+export const TINT_COLOR = 'rgba(0,0,0, 0.75)';

@@ -9,8 +9,6 @@ import { app } from '../database/mock';
 class SketchWrapper extends React.Component {
   ref = React.createRef();
 
-  state = { ready : false }
-
   componentDidMount () {
     app.callFn('getGame', this.props.match.params).then(({data}) => {
       create({
@@ -19,14 +17,12 @@ class SketchWrapper extends React.Component {
         history: this.props.history,
         data,
       })
-      this.setState({ready: true})
     }).catch((err) => {
       console.log(err)
     });
   }
   render () {
-    if (!this.state.ready) return null;
-    return <div ref={this.ref}></div>
+    return <div ref={this.ref} className="sketch"></div>
   }
 }
 export const Sketch = withRouter(SketchWrapper);
