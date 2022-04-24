@@ -1,6 +1,7 @@
 import "./globals";
 import * as p5 from 'p5';
-import 'p5/lib/addons/p5.sound';
+// sound currently not work
+// import 'p5/lib/addons/p5.sound';
 import _ from 'lodash';
 
 import {
@@ -98,7 +99,7 @@ export const preload = async function () {
   addButtons(gameState.menu.buttons, this.loadImage);
   addButtons(gameState.menu.buttons_gs, this.loadImage);
 
-  addSound(gameState.sound, this.loadSound);
+  // addSound(gameState.sound, this.loadSound);
 
   const [characters, characters_gs, field, ufo] = await Promise.all([
     addCharacters({}, this.loadImage),
@@ -126,7 +127,7 @@ export const setup = async function () {
   const canvas = this.createCanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
 
   this.pixelDensity(3.0);
-  this.soundFormats('ogg');
+  // this.soundFormats('ogg');
   this.frameRate(FRAMERATE);
   this.noSmooth();
 
@@ -165,9 +166,9 @@ export const setup = async function () {
     }
   });
 
-  gameState.sound.bkg.setVolume(0.150);
-  gameState.sound.bkg.play();
-  gameState.sound.bkg.setLoop(true);
+  // gameState.sound.bkg.setVolume(0.150);
+  // gameState.sound.bkg.play();
+  // gameState.sound.bkg.setLoop(true);
 }
 
 
